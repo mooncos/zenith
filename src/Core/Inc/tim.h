@@ -30,6 +30,14 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 
+/* Parameters of time base (used as ADC conversion trigger) */
+/* Time base frequency (unit: Hz). With a timer 16 bits and time base       */
+/* freq max 32kHz, range is [min=1Hz, max=32kHz].                           */
+#define TIMER2_FREQUENCY_HZ              (2000000UL)
+/* Time base range frequency maximum (unit: Hz).*/
+/* With a timer 16 bits, minimum frequency will be 1/32000 times this value.*/
+#define TIMER2_FREQUENCY_RANGE_MAX_HZ    (2000000UL)
+
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim2;
