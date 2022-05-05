@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2022 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2022 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -50,7 +50,17 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+/* Variables for ADC conversion data */
+__IO uint16_t uhADCxConvertedData[ADC_CONVERTED_DATA_BUFFER_SIZE] = {0}; /* ADC group regular conversion data (array of data) */
 
+/* Variables for ADC conversion data computation to physical values */
+__IO uint16_t uhADCxConvertedData_Voltage_mVolt[ADC_CONVERTED_DATA_BUFFER_SIZE]; /* Value of voltage calculated from ADC conversion data (unit: mV) (array of data) */
+
+/* Variable to report status of DMA transfer of ADC group regular conversions */
+/*  0: DMA transfer is not completed                                          */
+/*  1: DMA transfer is completed                                              */
+/*  2: DMA transfer has not yet been started yet (initial state)              */
+__IO uint8_t ubDmaTransferStatus = 2U; /* Variable set into DMA interruption callback */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,16 +118,39 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  /* Perform ADC calibration */
+  if (HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED) != HAL_OK)
+  {
+    /* Calibration Error */
+    Error_Handler();
+  }
+
+  /* Start ADC group regular conversion */
+  if (HAL_ADC_Start_DMA(&hadc1,
+                        (uint32_t *)uhADCxConvertedData,
+                        ADC_CONVERTED_DATA_BUFFER_SIZE
+                       ) != HAL_OK)
+  {
+    /* Error: ADC conversion start could not be performed */
+    Error_Handler();
+  }
+
+  /* Start time base */
+  if (HAL_TIM_Base_Start(&htim2) != HAL_OK)
+  {
+    /* Starting Error */
+    Error_Handler();
+  }
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+	while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -209,6 +242,53 @@ void PeriphCommonClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+/**
+ * @brief  DMA transfer complete callback
+ * @note   This function is executed when the transfer complete interrupt
+ *         is generated
+ * @retval None
+ */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+//	uint32_t tmp_index;
+//
+//	/* Computation of ADC conversions raw data to physical values
+//	 using LL ADC driver helper macro. */
+//	/* Management of the 2nd half of buffer */
+//	for (tmp_index = 0;
+//			tmp_index < ADC_CONVERTED_DATA_BUFFER_SIZE; tmp_index++) {
+//		uhADCxConvertedData_Voltage_mVolt[tmp_index] =
+//				__LL_ADC_CALC_DATA_TO_VOLTAGE(VDDA_APPLI,
+//						uhADCxConvertedData[tmp_index], LL_ADC_RESOLUTION_12B);
+//	}
+//
+//	/* Update status variable of DMA transfer */
+//	ubDmaTransferStatus = 1;
+
+	HAL_GPIO_WritePin(OSCILLO_GPIO_Port, OSCILLO_Pin, GPIO_PIN_SET);
+	asm("nop");
+	asm("nop");
+	HAL_GPIO_WritePin(OSCILLO_GPIO_Port, OSCILLO_Pin, GPIO_PIN_RESET);
+
+
+}
+
+/**
+ * @brief ADC Error callbal
+ * @note This function is called when an error with the ADC sampling and/or conversion has occurred
+ * @retval None
+ */
+void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
+{
+  /* Note: Disable ADC interruption that caused this error before entering in
+           infinite loop below. */
+
+  /* In case of error due to overrun: Disable ADC group regular overrun interruption */
+  LL_ADC_DisableIT_OVR(ADC1);
+
+  /* Error reporting */
+  Error_Handler();
+}
+
 /* USER CODE END 4 */
 
 /**
@@ -218,11 +298,11 @@ void PeriphCommonClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 

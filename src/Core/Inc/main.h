@@ -37,7 +37,7 @@ extern "C" {
 #define VDDA_APPLI                       (3300UL)
 
 /* Definition of ADCx conversions data table size */
-#define ADC_CONVERTED_DATA_BUFFER_SIZE   (2000UL)
+#define ADC_CONVERTED_DATA_BUFFER_SIZE   (2000UL) // with 2048 it gives 1.024ms period
 
 /* Init variable out of expected ADC conversion data range */
 #define VAR_CONVERTED_DATA_INIT_VALUE    (__LL_ADC_DIGITAL_SCALE(LL_ADC_RESOLUTION_12B) + 1)
