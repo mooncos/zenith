@@ -29,18 +29,28 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_hal.h"
 
+#include "app_conf.h"
+#include "app_entry.h"
+#include "app_common.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* Definitions of environment analog values */
 /* Value of analog reference voltage (Vref+), connected to analog voltage   */
 /* supply Vdda (unit: mV).                                                  */
 #define VDDA_APPLI                       (3300UL)
+#define USE_DOUBLE_BUFFER
 
 /* Definition of ADCx conversions data table size */
-#define ADC_CONVERTED_DATA_BUFFER_SIZE   (2000UL) // with 2048 it gives 1.024ms period
+#define ADC_CONVERTED_DATA_BUFFER_SIZE   (1UL*1000UL) // uses double buffer to not stop the DMA
 
 /* Init variable out of expected ADC conversion data range */
 #define VAR_CONVERTED_DATA_INIT_VALUE    (__LL_ADC_DIGITAL_SCALE(LL_ADC_RESOLUTION_12B) + 1)
+#define QUEUE_RAMPS_NO 16
+#define SEND_BIN_NO 60
+#define SEND_BIN_INITIAL_IDX 0
+#define EXTREMA_SAMPLES_DISCARD_NO 100
+#define TOTAL_SAMPLES_DISCARD_NO 200
 
 /* USER CODE END Includes */
 
@@ -69,6 +79,16 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define OSCILLO_Pin GPIO_PIN_8
 #define OSCILLO_GPIO_Port GPIOB
+#define TRIG_Pin GPIO_PIN_9
+#define TRIG_GPIO_Port GPIOB
+#define TRIG_EXTI_IRQn EXTI9_5_IRQn
+#define I_ADC_Pin GPIO_PIN_1
+#define I_ADC_GPIO_Port GPIOA
+#define Q_ADC_Pin GPIO_PIN_2
+#define Q_ADC_GPIO_Port GPIOA
+#define BTN1_Pin GPIO_PIN_6
+#define BTN1_GPIO_Port GPIOA
+#define BTN1_EXTI_IRQn EXTI9_5_IRQn
 #define LED2_Pin GPIO_PIN_0
 #define LED2_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
