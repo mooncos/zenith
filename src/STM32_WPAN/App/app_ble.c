@@ -217,8 +217,9 @@ uint8_t index_con_int, mutex;
 /**
  * Advertising Data
  */
-uint8_t ad_data[12] = {
+uint8_t ad_data[18] = {
     11, AD_TYPE_COMPLETE_LOCAL_NAME, 'S', 'i', 'R', 'a', 'd', 'a', 'r', 'B', 'L', 'E',  /* Complete name */
+    5, AD_TYPE_SLAVE_CONN_INTERVAL, 0x0007 /* 6 ms */, 0x0007 /* 6 ms*/,
 
 };
 
@@ -529,7 +530,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
 
       /* USER CODE BEGIN BLUE_EVT */
 		case ACI_GATT_TX_POOL_AVAILABLE_VSEVT_CODE:
-			doResumeNotification();
+			//doResumeNotification();
 			break;
       /* USER CODE END BLUE_EVT */
       }

@@ -54,7 +54,7 @@ void MX_DMA_Init(void)
   hdma_memtomem_dma1_channel2.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
   hdma_memtomem_dma1_channel2.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
   hdma_memtomem_dma1_channel2.Init.Mode = DMA_NORMAL;
-  hdma_memtomem_dma1_channel2.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+  hdma_memtomem_dma1_channel2.Init.Priority = DMA_PRIORITY_HIGH;
   if (HAL_DMA_Init(&hdma_memtomem_dma1_channel2) != HAL_OK)
   {
     Error_Handler();
